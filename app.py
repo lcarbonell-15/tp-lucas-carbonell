@@ -123,7 +123,27 @@ pct_ley = abs(delta_ley / delta_total) * 100
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    .block-container { max-width: 1100px; padding-top: 2rem; }
+
+    /* Fondo con patron sutil */
+    .stApp {
+        background-color: #f5f7fa;
+        background-image:
+            radial-gradient(circle at 25px 25px, #dfe6ed 1.5px, transparent 1.5px),
+            radial-gradient(circle at 75px 75px, #dfe6ed 1.5px, transparent 1.5px);
+        background-size: 100px 100px;
+    }
+
+    /* Container principal */
+    .block-container {
+        max-width: 1100px;
+        padding-top: 3rem;
+        padding-bottom: 2rem;
+        background-color: rgba(255, 255, 255, 0.92);
+        border-radius: 16px;
+        margin-top: 1rem;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
     .hero-title { font-family: 'Inter', sans-serif; font-size: 2.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 0.3rem; }
     .hero-sub { font-family: 'Inter', sans-serif; font-size: 1.15rem; color: #888; margin-bottom: 2rem; }
     .kpi-card { background: #f8f9fa; border-radius: 12px; padding: 1.4rem 1.2rem; text-align: center; border: 1px solid #e9ecef; }
@@ -147,6 +167,9 @@ st.markdown("""
     .results-table tr:nth-child(even) { background: #f5f8fb; }
     .highlight-neg { color: #E63946; font-weight: 700; }
     .highlight-pos { color: #2A9D8F; font-weight: 700; }
+
+    /* Header Streamlit oculto para mas espacio */
+    header[data-testid="stHeader"] { background: transparent; }
 </style>
 """, unsafe_allow_html=True)
 
