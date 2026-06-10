@@ -16,12 +16,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-CORAL  = "#E63946"
-VERDE  = "#2A9D8F"
-DORADO = "#E9C46A"
-NEGRO  = "#1A1A1A"
-GRIS   = "#6B7280"
-AZUL   = "#457b9d"
+CORAL     = "#FF4757"
+VERDE     = "#00C9A7"
+DORADO    = "#FFD93D"
+NEGRO     = "#1A1A2E"
+GRIS      = "#6B7280"
+AZUL      = "#4361EE"
+MORADO    = "#7B2FF7"
+NARANJA   = "#FF6B35"
+ROSA      = "#FF2E63"
+CYAN      = "#00D2FF"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # CARGA Y PROCESAMIENTO DE DATOS
@@ -58,19 +62,16 @@ meses_post = df_v[df_v['PERIODO']=='POST_LEY']['AÑO_MES'].nunique()
 # ══════════════════════════════════════════════════════════════════════════════
 df_graf = df_v[df_v['OCTOGONO'] != 'OTRO'].copy()
 
-# Promedio mensual por periodo y grupo
 total = df_v.groupby(['PERIODO','OCTOGONO'])['CANTIDAD'].sum().unstack(fill_value=0)
 prom = total.copy()
 prom.loc['PRE_LEY']  /= meses_pre
 prom.loc['POST_LEY'] /= meses_post
 prom = prom.reindex(['PRE_LEY','POST_LEY'])
 
-# Variaciones
 var_con = (prom.loc['POST_LEY','CON_OCTOGONO'] - prom.loc['PRE_LEY','CON_OCTOGONO']) / prom.loc['PRE_LEY','CON_OCTOGONO'] * 100
 var_sin = (prom.loc['POST_LEY','SIN_OCTOGONO'] - prom.loc['PRE_LEY','SIN_OCTOGONO']) / prom.loc['PRE_LEY','SIN_OCTOGONO'] * 100
 brecha = var_sin - var_con
 
-# Elasticidad-arco
 def elasticidad_arco(q0, q1, p0, p1):
     dq = (q1-q0)/((q0+q1)/2)
     dp = (p1-p0)/((p0+p1)/2)
@@ -89,7 +90,6 @@ for grupo in ['CON_OCTOGONO','SIN_OCTOGONO']:
     e_dict[grupo] = elasticidad_arco(q0, q1, p0, p1)
     p_dict[grupo] = {'pre': p0, 'post': p1, 'var': (p1-p0)/p0*100}
 
-# Curvas de demanda estimadas (P = a + b*Q)
 agg = (
     df_graf.groupby(['AÑO_MES','OCTOGONO','PERIODO'])
     .agg(Q=('CANTIDAD','sum'), P=('PRECIO','mean'))
@@ -104,7 +104,6 @@ for grupo in ['CON_OCTOGONO','SIN_OCTOGONO']:
         slope, intercept, r, *_ = stats.linregress(sub['Q_miles'], sub['P'])
         curvas[(grupo,periodo)] = {'a':intercept,'b':slope,'r2':r**2}
 
-# Descomposicion del shock
 a_con_pre  = curvas[('CON_OCTOGONO','PRE_LEY')]['a']
 a_con_post = curvas[('CON_OCTOGONO','POST_LEY')]['a']
 a_sin_pre  = curvas[('SIN_OCTOGONO','PRE_LEY')]['a']
@@ -122,83 +121,259 @@ pct_ley = abs(delta_ley / delta_total) * 100
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-    /* Fondo con patron sutil */
+    /* FONDO GRADIENTE VIBRANTE */
     .stApp {
-        background-color: #f5f7fa;
-        background-image:
-            radial-gradient(circle at 25px 25px, #dfe6ed 1.5px, transparent 1.5px),
-            radial-gradient(circle at 75px 75px, #dfe6ed 1.5px, transparent 1.5px);
-        background-size: 100px 100px;
+        background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        min-height: 100vh;
     }
 
-    /* Container principal */
+    /* HEADER TRANSPARENTE */
+    header[data-testid="stHeader"] { background: transparent !important; }
+    header[data-testid="stHeader"] * { color: transparent !important; }
+
+    /* CONTENEDOR PRINCIPAL FLOTANTE */
     .block-container {
         max-width: 1100px;
-        padding-top: 3rem;
+        padding-top: 2rem;
         padding-bottom: 2rem;
-        background-color: rgba(255, 255, 255, 0.92);
-        border-radius: 16px;
-        margin-top: 1rem;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 24px;
+        margin-top: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .hero-title { font-family: 'Inter', sans-serif; font-size: 2.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 0.3rem; }
-    .hero-sub { font-family: 'Inter', sans-serif; font-size: 1.15rem; color: #888; margin-bottom: 2rem; }
-    .kpi-card { background: #f8f9fa; border-radius: 12px; padding: 1.4rem 1.2rem; text-align: center; border: 1px solid #e9ecef; }
-    .kpi-number { font-family: 'Inter', sans-serif; font-size: 2.6rem; font-weight: 800; line-height: 1.1; }
-    .kpi-label { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #6b7280; margin-top: 0.3rem; }
-    .section-title { font-family: 'Inter', sans-serif; font-size: 1.6rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 0.5rem; padding-bottom: 0.4rem; border-bottom: 3px solid #E9C46A; }
-    .callout { background: #f0f7f5; border-left: 4px solid #2A9D8F; padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; font-size: 0.95rem; }
-    .callout-coral { background: #fdf0f0; border-left: 4px solid #E63946; }
-    .callout-dorado { background: #fdf8eb; border-left: 4px solid #E9C46A; }
-    .octagon-badge { display: inline-block; background: #1a1a1a; color: white; padding: 0.4rem 1rem; border-radius: 4px; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; }
-    .footer-text { text-align: center; color: #aaa; font-size: 0.8rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eee; }
-    .nutri-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    .nutri-table th { background: #1F4E79; color: white; padding: 8px 12px; text-align: left; }
-    .nutri-table td { padding: 6px 12px; border-bottom: 1px solid #eee; }
-    .nutri-table tr:nth-child(even) { background: #f5f8fb; }
-    .badge-si { background: #fde8e8; color: #991b1b; padding: 2px 10px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; }
-    .badge-no { background: #e8f5e9; color: #1b5e20; padding: 2px 10px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; }
-    .results-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 1rem 0; }
-    .results-table th { background: #1F4E79; color: white; padding: 10px 14px; text-align: left; }
-    .results-table td { padding: 8px 14px; border-bottom: 1px solid #eee; }
-    .results-table tr:nth-child(even) { background: #f5f8fb; }
-    .highlight-neg { color: #E63946; font-weight: 700; }
-    .highlight-pos { color: #2A9D8F; font-weight: 700; }
+    /* === HERO === */
+    .hero-badge {
+        display: inline-block;
+        background: linear-gradient(90deg, #FF4757, #FF6B81);
+        color: white;
+        padding: 6px 18px;
+        border-radius: 30px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+    .hero-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 3.2rem;
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(90deg, #FF4757, #FFD93D, #00C9A7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .hero-sub {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.15rem;
+        color: rgba(255,255,255,0.55);
+        margin-bottom: 2rem;
+        max-width: 700px;
+    }
+    .hero-divider {
+        height: 4px;
+        background: linear-gradient(90deg, #FF4757, #FFD93D, #00C9A7, #4361EE);
+        border-radius: 2px;
+        margin-bottom: 2rem;
+    }
 
-    /* Header Streamlit oculto para mas espacio */
-    header[data-testid="stHeader"] { background: transparent; }
+    /* === KPIs === */
+    .kpi-card {
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.6rem 1rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        transition: transform 0.2s;
+    }
+    .kpi-card:hover { transform: translateY(-3px); }
+    .kpi-number {
+        font-family: 'Inter', sans-serif;
+        font-size: 2.8rem;
+        font-weight: 900;
+        line-height: 1.1;
+    }
+    .kpi-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.82rem;
+        color: rgba(255,255,255,0.5);
+        margin-top: 0.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* === SECCIONES === */
+    .section-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-top: 2.5rem;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        color: #FFD93D;
+        border-bottom: 3px solid rgba(255, 217, 61, 0.3);
+    }
+
+    /* === CALLOUTS === */
+    .callout {
+        background: rgba(0, 201, 167, 0.08);
+        border-left: 4px solid #00C9A7;
+        padding: 1rem 1.2rem;
+        border-radius: 0 12px 12px 0;
+        margin: 1rem 0;
+        font-size: 0.95rem;
+        color: rgba(255,255,255,0.85);
+        border: 1px solid rgba(0, 201, 167, 0.15);
+    }
+    .callout-coral {
+        background: rgba(255, 71, 87, 0.08);
+        border-left: 4px solid #FF4757;
+        border: 1px solid rgba(255, 71, 87, 0.15);
+    }
+    .callout-dorado {
+        background: rgba(255, 217, 61, 0.08);
+        border-left: 4px solid #FFD93D;
+        border: 1px solid rgba(255, 217, 61, 0.15);
+    }
+    .callout strong { color: white; }
+
+    /* === BADGES === */
+    .octagon-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #FF4757, #FF2E63);
+        color: white;
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    }
+
+    /* === TABLAS === */
+    .nutri-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.88rem;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .nutri-table th {
+        background: linear-gradient(90deg, #4361EE, #7B2FF7);
+        color: white;
+        padding: 10px 14px;
+        text-align: left;
+    }
+    .nutri-table td {
+        padding: 8px 14px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.8);
+    }
+    .nutri-table tr:nth-child(even) { background: rgba(255, 255, 255, 0.03); }
+    .nutri-table tr:hover { background: rgba(255, 255, 255, 0.06); }
+
+    .badge-si {
+        background: linear-gradient(90deg, #FF4757, #FF6B81);
+        color: white;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.78rem;
+    }
+    .badge-no {
+        background: linear-gradient(90deg, #00C9A7, #00E6C3);
+        color: white;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.78rem;
+    }
+
+    .results-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.9rem;
+        margin: 1rem 0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .results-table th {
+        background: linear-gradient(90deg, #4361EE, #7B2FF7);
+        color: white;
+        padding: 12px 16px;
+        text-align: left;
+    }
+    .results-table td {
+        padding: 10px 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.8);
+    }
+    .results-table tr:nth-child(even) { background: rgba(255, 255, 255, 0.03); }
+    .results-table tr:hover { background: rgba(255, 255, 255, 0.06); }
+
+    .highlight-neg { color: #FF4757; font-weight: 800; }
+    .highlight-pos { color: #00C9A7; font-weight: 800; }
+
+    /* === FOOTER === */
+    .footer-text {
+        text-align: center;
+        color: rgba(255,255,255,0.3);
+        font-size: 0.78rem;
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* === STREAMLIT OVERRIDES === */
+    .stMarkdown { color: rgba(255,255,255,0.85); }
+    .stMarkdown p { color: rgba(255,255,255,0.85); }
+    .stMarkdown li { color: rgba(255,255,255,0.85); }
+    .stDataFrame { border-radius: 12px; overflow: hidden; }
+    div[data-testid="stExpander"] {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+    }
+    div[data-testid="stExpander"] summary { color: rgba(255,255,255,0.7); }
 </style>
 """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SECCION 1: HERO + KPIs
 # ══════════════════════════════════════════════════════════════════════════════
-st.markdown('<p class="hero-title">¿Los octogonos hicieron vender menos?</p>', unsafe_allow_html=True)
-st.markdown('<p class="hero-sub">Impacto de la Ley 27.642 de Etiquetado Frontal sobre las ventas de General Cereals S.A. · FCE UBA · 1C 2026</p>', unsafe_allow_html=True)
+st.markdown('<span class="hero-badge">Estudio de caso · FCE UBA</span>', unsafe_allow_html=True)
+st.markdown('<h1 class="hero-title">El octogono que tumbó las ventas</h1>', unsafe_allow_html=True)
+st.markdown('<p class="hero-sub">La Ley 27.642 de Etiquetado Frontal cambió la forma en que los argentinos eligen sus cereales. Analizamos 54.769 transacciones de General Cereals para medir el impacto real.</p>', unsafe_allow_html=True)
+st.markdown('<div class="hero-divider"></div>', unsafe_allow_html=True)
 
 c1, c2, c3, c4 = st.columns(4)
 with c1:
     st.markdown(f"""<div class="kpi-card">
-        <div class="kpi-number" style="color:{CORAL}">{var_con:+.1f}%</div>
-        <div class="kpi-label">Vol. mensual CON octogono</div>
+        <div class="kpi-number" style="color:#FF4757;">{var_con:+.1f}%</div>
+        <div class="kpi-label">Vol. mensual<br>CON octogono</div>
     </div>""", unsafe_allow_html=True)
 with c2:
     st.markdown(f"""<div class="kpi-card">
-        <div class="kpi-number" style="color:{VERDE}">{var_sin:+.1f}%</div>
-        <div class="kpi-label">Vol. mensual SIN octogono</div>
+        <div class="kpi-number" style="color:#00C9A7;">{var_sin:+.1f}%</div>
+        <div class="kpi-label">Vol. mensual<br>SIN octogono</div>
     </div>""", unsafe_allow_html=True)
 with c3:
     st.markdown(f"""<div class="kpi-card">
-        <div class="kpi-number" style="color:#1F4E79">{e_dict['CON_OCTOGONO']:.4f}</div>
-        <div class="kpi-label">Elasticidad CON octogono</div>
+        <div class="kpi-number" style="color:#4361EE;">{e_dict['CON_OCTOGONO']:.4f}</div>
+        <div class="kpi-label">Elasticidad<br>CON octogono</div>
     </div>""", unsafe_allow_html=True)
 with c4:
     st.markdown(f"""<div class="kpi-card">
-        <div class="kpi-number" style="color:#633806">{brecha:.1f} p.p.</div>
-        <div class="kpi-label">Brecha entre grupos</div>
+        <div class="kpi-number" style="color:#FFD93D;">{brecha:.1f} p.p.</div>
+        <div class="kpi-label">Brecha entre<br>grupos</div>
     </div>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -227,7 +402,6 @@ porque a la gente no le alcanzaba la plata? Para separarlo, usamos los productos
 como <strong>grupo de control natural</strong>: sufrieron la misma inflacion pero no el etiquetado.
 </div>""", unsafe_allow_html=True)
 
-# Tabla nutricional detallada
 st.markdown('<div class="section-title">Clasificacion nutricional (Decreto 151/2022)</div>', unsafe_allow_html=True)
 st.markdown("""
 La clasificacion se basa en los **valores nutricionales reales** de los productos NUTRI FOODS
@@ -259,34 +433,34 @@ st.markdown(tabla_html, unsafe_allow_html=True)
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">Analisis grafico</div>', unsafe_allow_html=True)
 
-# GRAFICO 1: Serie temporal
 st.markdown("**Grafico 1 — Evolucion mensual de cantidades vendidas**")
 serie = df_graf.groupby(['AÑO_MES','OCTOGONO'])['CANTIDAD'].sum().unstack(fill_value=0)
 serie.index = serie.index.to_timestamp()
 
 fig1, ax1 = plt.subplots(figsize=(12, 4.5))
-ax1.plot(serie.index, serie['CON_OCTOGONO']/1e6, color=CORAL, lw=2, label='CON octogono')
-ax1.plot(serie.index, serie['SIN_OCTOGONO']/1e6, color=VERDE, lw=2, label='SIN octogono')
+fig1.patch.set_facecolor('#1A1A2E')
+ax1.set_facecolor('#1A1A2E')
+ax1.plot(serie.index, serie['CON_OCTOGONO']/1e6, color=CORAL, lw=2.5, label='CON octogono')
+ax1.plot(serie.index, serie['SIN_OCTOGONO']/1e6, color=VERDE, lw=2.5, label='SIN octogono')
 ax1.axvline(pd.Timestamp('2022-07-01'), color=DORADO, lw=2, ls='--', label='Ley 27.642 (jul-2022)')
-ax1.set_ylabel('Millones de unidades', fontsize=11)
+ax1.set_ylabel('Millones de unidades', fontsize=11, color='white')
 ax1.set_xlabel('')
-ax1.legend(fontsize=10)
-ax1.grid(True, ls='--', alpha=0.3)
-ax1.set_facecolor('#FAFAFA')
-fig1.patch.set_facecolor('#FAFAFA')
+ax1.legend(fontsize=10, facecolor='#1A1A2E', edgecolor='#333', labelcolor='white')
+ax1.grid(True, ls='--', alpha=0.2, color='white')
+ax1.tick_params(colors='white')
+for spine in ax1.spines.values(): spine.set_color('#333')
 plt.tight_layout()
 st.pyplot(fig1)
 plt.close()
 
 st.markdown("""<div class="callout">
-Las dos lineas cuentan historias distintas. Los productos <strong>CON octogono</strong> (rojo)
+Las dos lineas cuentan historias distintas. Los productos <strong style="color:#FF4757;">CON octogono</strong>
 vienen de un volumen mucho mas alto en 2022, pero muestran una tendencia clara hacia abajo
-que se sostiene en el tiempo. Los <strong>SIN octogono</strong> (verde) se mantienen
+que se sostiene en el tiempo. Los <strong style="color:#00C9A7;">SIN octogono</strong> se mantienen
 estables e incluso crecen levemente. Ambos grupos vivieron la misma inflacion,
 pero reaccionaron de forma opuesta.
 </div>""", unsafe_allow_html=True)
 
-# GRAFICO 2: Barras pre/post
 st.markdown("**Grafico 2 — Promedio mensual antes vs despues de la ley**")
 
 df_prom = prom[['CON_OCTOGONO','SIN_OCTOGONO']]
@@ -294,21 +468,23 @@ x = np.arange(2)
 w = 0.35
 
 fig2, ax2 = plt.subplots(figsize=(8, 4.5))
+fig2.patch.set_facecolor('#1A1A2E')
+ax2.set_facecolor('#1A1A2E')
 bars1 = ax2.bar(x, df_prom['CON_OCTOGONO']/1e6, w, label='CON octogono', color=CORAL, alpha=0.9)
 bars2 = ax2.bar(x+w, df_prom['SIN_OCTOGONO']/1e6, w, label='SIN octogono', color=VERDE, alpha=0.9)
 ax2.set_xticks(x + w/2)
-ax2.set_xticklabels(['Pre Ley\n(ene-jun 2022)', 'Post Ley\n(jul 2022 - dic 2024)'], fontsize=11)
-ax2.set_ylabel('Promedio mensual (millones)', fontsize=11)
-ax2.legend(fontsize=10)
-ax2.grid(True, axis='y', ls='--', alpha=0.3)
+ax2.set_xticklabels(['Pre Ley\n(ene-jun 2022)', 'Post Ley\n(jul 2022 - dic 2024)'], fontsize=11, color='white')
+ax2.set_ylabel('Promedio mensual (millones)', fontsize=11, color='white')
+ax2.legend(fontsize=10, facecolor='#1A1A2E', edgecolor='#333', labelcolor='white')
+ax2.grid(True, axis='y', ls='--', alpha=0.2, color='white')
+ax2.tick_params(colors='white')
+for spine in ax2.spines.values(): spine.set_color('#333')
 
 ax2.annotate(f'{var_con:+.1f}%', xy=(1, df_prom.loc['POST_LEY','CON_OCTOGONO']/1e6),
              ha='center', va='bottom', fontweight='bold', color=CORAL, fontsize=13)
 ax2.annotate(f'{var_sin:+.1f}%', xy=(1+w, df_prom.loc['POST_LEY','SIN_OCTOGONO']/1e6),
              ha='center', va='bottom', fontweight='bold', color=VERDE, fontsize=13)
 
-ax2.set_facecolor('#FAFAFA')
-fig2.patch.set_facecolor('#FAFAFA')
 plt.tight_layout()
 st.pyplot(fig2)
 plt.close()
@@ -316,31 +492,32 @@ plt.close()
 col_a, col_b = st.columns(2)
 with col_a:
     st.markdown(f"""<div class="callout callout-coral">
-    <strong>CON octogono:</strong> el volumen mensual cayo un <strong>{var_con:.1f}%</strong>
+    <strong style="color:#FF4757;">CON octogono:</strong> el volumen mensual cayo un <strong style="color:#FF4757;">{var_con:.1f}%</strong>
     con un aumento de precios de +{p_dict['CON_OCTOGONO']['var']:.1f}%.
     </div>""", unsafe_allow_html=True)
 with col_b:
     st.markdown(f"""<div class="callout">
-    <strong>SIN octogono:</strong> el volumen mensual crecio un <strong>{var_sin:.1f}%</strong>
+    <strong style="color:#00C9A7;">SIN octogono:</strong> el volumen mensual crecio un <strong style="color:#00C9A7;">{var_sin:.1f}%</strong>
     pese a un aumento de precios aun mayor: +{p_dict['SIN_OCTOGONO']['var']:.1f}%.
     </div>""", unsafe_allow_html=True)
 
-# GRAFICO 3: Variacion interanual
 st.markdown("**Grafico 3 — Variacion interanual: ¿efecto puntual o sostenido?**")
 
 var_anual = df_graf.groupby(['AÑO','OCTOGONO'])['CANTIDAD'].sum().unstack()
 var_pct = var_anual.pct_change() * 100
 
 fig3, ax3 = plt.subplots(figsize=(8, 4.5))
+fig3.patch.set_facecolor('#1A1A2E')
+ax3.set_facecolor('#1A1A2E')
 ax3.plot(var_pct.index, var_pct['CON_OCTOGONO'], marker='o', color=CORAL, lw=2.5, ms=10, label='CON octogono')
 ax3.plot(var_pct.index, var_pct['SIN_OCTOGONO'], marker='s', color=VERDE, lw=2.5, ms=10, label='SIN octogono')
 ax3.axhline(0, color='gray', ls=':', lw=1)
-ax3.set_ylabel('Variacion % vs año anterior', fontsize=11)
+ax3.set_ylabel('Variacion % vs año anterior', fontsize=11, color='white')
 ax3.set_xticks([2022, 2023, 2024])
-ax3.legend(fontsize=10)
-ax3.grid(True, ls='--', alpha=0.3)
-ax3.set_facecolor('#FAFAFA')
-fig3.patch.set_facecolor('#FAFAFA')
+ax3.tick_params(colors='white')
+ax3.legend(fontsize=10, facecolor='#1A1A2E', edgecolor='#333', labelcolor='white')
+ax3.grid(True, ls='--', alpha=0.2, color='white')
+for spine in ax3.spines.values(): spine.set_color('#333')
 plt.tight_layout()
 st.pyplot(fig3)
 plt.close()
@@ -348,10 +525,9 @@ plt.close()
 st.markdown("""<div class="callout callout-dorado">
 Si el octogono generara un efecto puntual, la brecha deberia cerrarse en 2024.
 Pero no se cierra: el patron se mantiene. El cambio en las preferencias de los consumidores
-es <strong>estructural</strong>, no pasajero.
+es <strong style="color:#FFD93D;">estructural</strong>, no pasajero.
 </div>""", unsafe_allow_html=True)
 
-# GRAFICO 4: Desplazamiento de curva de demanda (NUEVO)
 st.markdown("**Grafico 4 — Desplazamiento de la curva de demanda (Shock externo)**")
 
 b_con = curvas[('CON_OCTOGONO','PRE_LEY')]['b']
@@ -364,34 +540,37 @@ p_pre_vals  = a_con_pre  + b_con * q_vals
 p_post_vals = a_con_post + b_con * q_vals
 
 fig4, ax4 = plt.subplots(figsize=(10, 5))
-ax4.plot(q_vals, p_pre_vals,  color=AZUL, lw=2.5, label='Demanda PRE-LEY')
-ax4.plot(q_vals, p_post_vals, color=CORAL, lw=2.5, ls='--', label='Demanda POST-LEY')
+fig4.patch.set_facecolor('#1A1A2E')
+ax4.set_facecolor('#1A1A2E')
+ax4.plot(q_vals, p_pre_vals,  color=CYAN, lw=2.5, label='Demanda PRE-LEY')
+ax4.plot(q_vals, p_post_vals, color=ROSA, lw=2.5, ls='--', label='Demanda POST-LEY')
 
 q_mid = (q_min + q_max) / 2
 p_pre_mid  = a_con_pre  + b_con * q_mid
 p_post_mid = a_con_post + b_con * q_mid
 ax4.annotate('', xy=(q_mid, p_post_mid), xytext=(q_mid, p_pre_mid),
-             arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
+             arrowprops=dict(arrowstyle='->', color='white', lw=2))
 ax4.text(q_mid * 1.03, (p_pre_mid + p_post_mid)/2,
          f'Shock total: ${abs(delta_total):,.0f}\nInflacion: {pct_inf:.0f}%\nLey: {pct_ley:.0f}%',
-         fontsize=9, va='center')
+         fontsize=10, va='center', color='white',
+         bbox=dict(boxstyle='round,pad=0.4', facecolor='#302b63', edgecolor='#7B2FF7', alpha=0.9))
 
 ax4.set_title('Desplazamiento de la curva de demanda — Productos CON octogono\n'
-              'Shock combinado: inflacion + Ley 27.642 de Etiquetado Frontal', fontsize=12)
-ax4.set_xlabel('Cantidad (miles de unidades/mes)')
-ax4.set_ylabel('Precio promedio ($)')
-ax4.legend()
-ax4.grid(True, ls='--', alpha=0.3)
-ax4.set_facecolor('#FAFAFA')
-fig4.patch.set_facecolor('#FAFAFA')
+              'Shock combinado: inflacion + Ley 27.642', fontsize=12, color='white', pad=15)
+ax4.set_xlabel('Cantidad (miles de unidades/mes)', color='white')
+ax4.set_ylabel('Precio promedio ($)', color='white')
+ax4.legend(fontsize=10, facecolor='#1A1A2E', edgecolor='#333', labelcolor='white')
+ax4.grid(True, ls='--', alpha=0.2, color='white')
+ax4.tick_params(colors='white')
+for spine in ax4.spines.values(): spine.set_color('#333')
 plt.tight_layout()
 st.pyplot(fig4)
 plt.close()
 
 st.markdown(f"""<div class="callout">
 La curva de demanda de los productos CON octogono se desplazo hacia abajo.
-Ese desplazamiento tiene dos componentes: la inflacion explica el <strong>{pct_inf:.0f}%</strong>
-y el etiquetado frontal explica el <strong>{pct_ley:.0f}%</strong> restante.
+Ese desplazamiento tiene dos componentes: la inflacion explica el <strong style="color:#FFD93D;">{pct_inf:.0f}%</strong>
+y el etiquetado frontal explica el <strong style="color:#FF4757;">{pct_ley:.0f}%</strong> restante.
 Aunque no hubiera habido ley, la demanda igual hubiera caido por la inflacion.
 Pero la ley agrego un empujon extra hacia abajo que los productos sin octogono no sufrieron.
 </div>""", unsafe_allow_html=True)
@@ -409,26 +588,26 @@ $$E = \\frac{(Q_1 - Q_0) / ((Q_0 + Q_1)/2)}{(P_1 - P_0) / ((P_0 + P_1)/2)}$$
 
 col1, col2 = st.columns(2)
 with col1:
-    st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid {CORAL};">
-        <div class="kpi-number" style="color:{CORAL}; font-size:2.2rem;">{e_dict['CON_OCTOGONO']:.4f}</div>
-        <div class="kpi-label"><strong>CON octogono</strong><br>
+    st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid #FF4757;">
+        <div class="kpi-number" style="color:#FF4757; font-size:2.4rem;">{e_dict['CON_OCTOGONO']:.4f}</div>
+        <div class="kpi-label"><strong style="color:#FF4757;">CON octogono</strong><br>
         Demanda inelastica con caida de volumen.<br>
         Por cada 1% de aumento de precio, la cantidad cayo un {abs(e_dict['CON_OCTOGONO']):.2f}%.</div>
     </div>""", unsafe_allow_html=True)
 with col2:
-    st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid {VERDE};">
-        <div class="kpi-number" style="color:{VERDE}; font-size:2.2rem;">{e_dict['SIN_OCTOGONO']:.4f}</div>
-        <div class="kpi-label"><strong>SIN octogono</strong><br>
+    st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid #00C9A7;">
+        <div class="kpi-number" style="color:#00C9A7; font-size:2.4rem;">{e_dict['SIN_OCTOGONO']:.4f}</div>
+        <div class="kpi-label"><strong style="color:#00C9A7;">SIN octogono</strong><br>
         Elasticidad positiva: crece pese a mayor precio.<br>
         Efecto sustituto inducido por el etiquetado.</div>
     </div>""", unsafe_allow_html=True)
 
 st.markdown(f"""
-<strong>CON octogono:</strong> Los precios subieron {p_dict['CON_OCTOGONO']['var']:+.1f}% y la cantidad cayo {var_con:+.1f}%.
+<strong style="color:#FF4757;">CON octogono:</strong> Los precios subieron {p_dict['CON_OCTOGONO']['var']:+.1f}% y la cantidad cayo {var_con:+.1f}%.
 La demanda es inelastica, pero eso no significa que no cayo: cayo igual, y encima menos de lo que sugiere el precio.
 El octogono probablemente contribuyo a hacer que los consumidores buscaran alternativas que antes no consideraban.
 
-<strong>SIN octogono:</strong> Los precios subieron {p_dict['SIN_OCTOGONO']['var']:+.1f}% y aun asi la cantidad CRECIO {var_sin:+.1f}%.
+<strong style="color:#00C9A7;">SIN octogono:</strong> Los precios subieron {p_dict['SIN_OCTOGONO']['var']:+.1f}% y aun asi la cantidad CRECIO {var_sin:+.1f}%.
 Esto es lo que en economia se llama un bien Giffen o, mas probablemente, un efecto sustituto:
 los consumidores que dejaron de comprar productos con octogono se volcaron a estos, aun pagando mas.
 El octogono no solo redujo la demanda de los productos marcados,
@@ -436,14 +615,14 @@ sino que redireccion parte de ella hacia los productos percibidos como mas salud
 """)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SECCION 5: ANALISIS DE SHOCK EXTERNO (NUEVO)
+# SECCION 5: ANALISIS DE SHOCK EXTERNO
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">Analisis de shock externo con SymPy</div>', unsafe_allow_html=True)
 
 st.markdown("""
 En el modelo de oferta y demanda, un **shock externo** es un evento fuera del mercado que desplaza
 la curva de demanda. La Ley 27.642 opera exactamente como ese tipo de shock: al agregar informacion
-negativa visible en el envase, **reduce la disposicion a pagar** de los consumidores.
+negativa visible en el envase, <strong style="color:#FF4757;">reduce la disposicion a pagar</strong> de los consumidores.
 
 Usando el grupo SIN octogono como control, podemos separar cuanto del desplazamiento se debe
 a la inflacion y cuanto se debe especificamente al etiquetado.
@@ -461,30 +640,29 @@ st.markdown(tabla_curvas, unsafe_allow_html=True)
 
 st.markdown('<div class="section-title" style="font-size:1.2rem;">Descomposicion del shock</div>', unsafe_allow_html=True)
 
-st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid {CORAL}; margin-bottom: 1rem;">
-    <div class="kpi-number" style="color:{CORAL}; font-size:1.8rem;">${delta_total:+,.0f} $/unidad</div>
+st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid #FF4757; margin-bottom: 1rem;">
+    <div class="kpi-number" style="color:#FF4757; font-size:1.8rem;">${delta_total:+,.0f} $/unidad</div>
     <div class="kpi-label"><strong>Desplazamiento total (CON, pre→post)</strong></div>
 </div>""", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 with col1:
-    st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid {DORADO};">
-        <div class="kpi-number" style="color:#633806; font-size:1.8rem;">{pct_inf:.1f}%</div>
-        <div class="kpi-label"><strong>Efecto inflacion</strong><br>${delta_inflacion:+,.0f} $/unidad<br>
+    st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid #FFD93D;">
+        <div class="kpi-number" style="color:#FFD93D; font-size:1.8rem;">{pct_inf:.1f}%</div>
+        <div class="kpi-label"><strong style="color:#FFD93D;">Efecto inflacion</strong><br>${delta_inflacion:+,.0f} $/unidad<br>
         Medido con grupo SIN como control</div>
     </div>""", unsafe_allow_html=True)
 with col2:
-    st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid {CORAL};">
-        <div class="kpi-number" style="color:{CORAL}; font-size:1.8rem;">{pct_ley:.1f}%</div>
-        <div class="kpi-label"><strong>Efecto etiquetado (ley)</strong><br>${delta_ley:+,.0f} $/unidad<br>
+    st.markdown(f"""<div class="kpi-card" style="border-left: 4px solid #FF4757;">
+        <div class="kpi-number" style="color:#FF4757; font-size:1.8rem;">{pct_ley:.1f}%</div>
+        <div class="kpi-label"><strong style="color:#FF4757;">Efecto etiquetado (ley)</strong><br>${delta_ley:+,.0f} $/unidad<br>
         Efecto adicional del octogono</div>
     </div>""", unsafe_allow_html=True)
 
 st.markdown("""<div class="callout callout-dorado">
 <strong>Interpretacion:</strong> La inflacion explica la mayor parte del desplazamiento de la curva
 de demanda. Pero el etiquetado frontal agrego un empujon extra hacia abajo que los productos
-sin octogono no sufrieron. Este efecto adicional es el que genera la brecha de 34,6 puntos
-porcentuales en el volumen de ventas.
+sin octogono no sufrieron. Este efecto adicional es el que genera la brecha en el volumen de ventas.
 </div>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -493,12 +671,12 @@ porcentuales en el volumen de ventas.
 st.markdown('<div class="section-title">Conclusion</div>', unsafe_allow_html=True)
 
 st.markdown(f"""
-Los productos **CON octogono** de General Cereals cayeron un **{abs(var_con):.1f}%** en volumen mensual promedio
-tras la entrada en vigor de la ley. Los productos **SIN octogono** crecieron un **{var_sin:.1f}%**.
-Una brecha de **{brecha:.1f} puntos porcentuales** entre dos grupos de la misma empresa,
+Los productos <strong style="color:#FF4757;">CON octogono</strong> de General Cereals cayeron un <strong style="color:#FF4757;">{abs(var_con):.1f}%</strong> en volumen mensual promedio
+tras la entrada en vigor de la ley. Los productos <strong style="color:#00C9A7;">SIN octogono</strong> crecieron un <strong style="color:#00C9A7;">{var_sin:.1f}%</strong>.
+Una brecha de <strong style="color:#FFD93D;">{brecha:.1f} puntos porcentuales</strong> entre dos grupos de la misma empresa,
 bajo la misma inflacion y los mismos canales de distribucion.
 
-Los productos SIN octogono tuvieron una inflacion de precios **mayor** (+{p_dict['SIN_OCTOGONO']['var']:.1f}%)
+Los productos SIN octogono tuvieron una inflacion de precios <strong>mayor</strong> (+{p_dict['SIN_OCTOGONO']['var']:.1f}%)
 que los CON octogono (+{p_dict['CON_OCTOGONO']['var']:.1f}%) y aun asi vendieron mas.
 Si la inflacion fuera el unico factor, el patron seria al reves.
 
@@ -512,7 +690,6 @@ recibieron el empujon adicional del etiquetado.
 **La diferencia es el efecto del etiquetado.**
 """)
 
-# Tabla resumen de resultados
 st.markdown('<div class="section-title" style="font-size:1.2rem;">Tabla resumen de resultados</div>', unsafe_allow_html=True)
 
 tabla_resumen = '<table class="results-table"><tr><th>Indicador</th><th>CON octogono</th><th>SIN octogono</th></tr>'
