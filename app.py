@@ -135,7 +135,7 @@ df, df_v, MESES_PRE, MESES_POST = load_data()
 # ═══════════════════════════════════════════════════════════════════════
 st.title("Impacto de la Ley 27.642 de Etiquetado Frontal")
 st.title("sobre General Cereals S.A.")
-st.caption("Trabajo Practico Grupal  ·  Laboratorio de Metodos Cuantitativos  ·  FCE UBA  ·  1C 2026")
+st.caption("Trabajo Práctico Grupal  ·  Laboratorio de Métodos Cuantitativos  ·  FCE UBA  ·  1C 2026")
 st.markdown("---")
 
 
@@ -144,45 +144,45 @@ st.markdown("---")
 # ═══════════════════════════════════════════════════════════════════════
 st.header("1. Sobre la empresa analizada")
 
-with st.expander("Leer mas sobre General Cereals S.A.", expanded=False):
+with st.expander("Leer más sobre General Cereals S.A.", expanded=False):
     st.markdown("""
 **General Cereals S.A.** es una empresa argentina de capitales nacionales fundada en 1994,
-dedicada a la elaboracion de cereales para el desayuno bajo su marca principal **NUTRI FOODS**.
+dedicada a la elaboración de cereales para el desayuno bajo su marca principal **NUTRI FOODS**.
 
-Su portfolio incluye cereales azucarados (copos, bolitas, anillos, almohaditas) y
+Su portafolio incluye cereales azucarados (copos, bolitas, anillos, almohaditas) y
 productos naturales (avena, granola, salvado), tanto para consumo hogar como insumos industriales.
 
-En 2014 fue adquirida por el **Grupo Georgalos** y actualmente exporta a mas de 10 paises.
+En 2014 fue adquirida por el **Grupo Georgalos** y actualmente exporta a más de 10 países.
     """)
 
 
 # ═══════════════════════════════════════════════════════════════════════
 #  SECCION 2 — PREGUNTA DE INVESTIGACION
 # ═══════════════════════════════════════════════════════════════════════
-st.header("2. Pregunta de investigacion")
+st.header("2. Pregunta de investigación")
 
 st.markdown("""
 > **¿Los productos de General Cereals que recibieron octogonos de advertencia por la
 > Ley 27.642 de etiquetado frontal vendieron menos unidades que los que no los recibieron,
-> teniendo en cuenta que la inflacion ya de por si redujo el consumo general?**
+> teniendo en cuenta que la inflación ya de por sí redujo el consumo general?**
 """)
 
 col1, col2, col3 = st.columns(3)
 col1.metric("Volumen vendido", "Columna CANTIDAD")
 col2.metric("Corte temporal", "PRE/POST ley (jul-2022)")
-col3.metric("Clasificacion", "CON vs SIN octogono")
+col3.metric("Clasificación", "CON vs SIN octogono")
 
 
 # ═══════════════════════════════════════════════════════════════════════
 #  SECCION 3 — EXPLORACION DEL DATASET (INTERACTIVO)
 # ═══════════════════════════════════════════════════════════════════════
-st.header("3. Exploracion del dataset")
+st.header("3. Exploración del dataset")
 
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Transacciones", f"{len(df):,}")
 col2.metric("Columnas", df.shape[1])
-col3.metric("Periodo", "Ene 2022 - Dic 2024")
-col4.metric("Ventas validas (FCD)", f"{len(df_v):,}")
+col1.metric("Período", "Ene 2022 - Dic 2024")
+col4.metric("Ventas válidas (FCD)", f"{len(df_v):,}")
 
 st.markdown("")
 
@@ -190,19 +190,19 @@ st.markdown("")
 if st.checkbox("Mostrar primeras filas del dataset"):
     st.dataframe(df[["FECHA","FORMULARIO","DETALLE","PRECIO","CANTIDAD","SUBRUBRO_BI","MARCA_BI","AÑO"]].head(10), use_container_width=True)
 
-if st.checkbox("Mostrar tipos de transaccion (FORMULARIO)"):
+if st.checkbox("Mostrar tipos de transacción (FORMULARIO)"):
     form_counts = df["FORMULARIO"].value_counts()
     st.dataframe(
         pd.DataFrame({
             "Tipo": form_counts.index,
             "Cantidad": form_counts.values,
-            "Descripcion": ["Factura de Venta (ventas reales)", "Nota de Credito (devoluciones)", "Factura Rectificativa (correcciones)"]
+            "Descripción": ["Factura de Venta (ventas reales)", "Nota de Crédito (devoluciones)", "Factura Rectificativa (correcciones)"]
         }),
         use_container_width=True, hide_index=True
     )
     st.caption("Solo las FCD representan ventas reales. Las NCD tienen cantidad negativa (devoluciones).")
 
-if st.checkbox("Mostrar distribucion por subrubro (SUBRUBRO_BI)"):
+if st.checkbox("Mostrar distribución por subrubro (SUBRUBRO_BI)"):
     subrubros = df["SUBRUBRO_BI"].value_counts()
     st.bar_chart(subrubros, color="#00e676")
 
@@ -210,10 +210,10 @@ if st.checkbox("Mostrar distribucion por subrubro (SUBRUBRO_BI)"):
 # ═══════════════════════════════════════════════════════════════════════
 #  SECCION 4 — CLASIFICACION OCTOGONO
 # ═══════════════════════════════════════════════════════════════════════
-st.header("4. Clasificacion: ¿Quienes llevan octogono?")
+st.header("4. Clasificación: ¿Quiénes llevan octogono?")
 
 st.markdown("""
-La columna `OCTOGONO` clasifica cada producto segun los limites del **Decreto 151/2022**.
+La columna `OCTOGONO` clasifica cada producto según los límites del **Decreto 151/2022**.
 """)
 
 octo_counts = df["OCTOGONO"].value_counts()
@@ -243,8 +243,8 @@ col1.metric("Meses PRE_LEY", MESES_PRE, help="Enero - Junio 2022")
 col2.metric("Meses POST_LEY", MESES_POST, help="Julio 2022 - Diciembre 2024")
 
 st.warning(
-    f"El periodo POST_LEY dura **{MESES_POST // MESES_PRE}x mas** que el PRE_LEY. "
-    "Por eso todos los calculos comparativos usan **promedios mensuales**, no totales."
+    f"El período POST_LEY dura **{MESES_POST // MESES_PRE}x más** que el PRE_LEY. "
+    "Por eso todos los cálculos comparativos usan **promedios mensuales**, no totales."
 )
 
 
@@ -255,10 +255,10 @@ st.header("6. Precio real deflactado por IPC")
 
 st.markdown("""
 Precios nominales deflactados con coeficientes FACPCE (base diciembre 2024).
-**Inflacion acumulada (ene 2022 -> dic 2024): ~1171%**
+**Inflación acumulada (ene 2022 -> dic 2024): ~1171%**
 """)
 
-with st.expander("Ver coeficientes de deflacion FACPCE", expanded=False):
+with st.expander("Ver coeficientes de deflación FACPCE", expanded=False):
     deflactor_data = {
         "2022-01": 12.71, "2022-02": 12.14, "2022-03": 11.38,
         "2022-04": 10.73, "2022-05": 10.21, "2022-06":  9.70,
@@ -293,10 +293,10 @@ for grupo in ["CON_OCTOGONO", "SIN_OCTOGONO"]:
 # ═══════════════════════════════════════════════════════════════════════
 #  SECCION 7 — ESTADISTICAS + GRAFICOS INTERACTIVOS
 # ═══════════════════════════════════════════════════════════════════════
-st.header("7. Analisis grafico")
+st.header("7. Análisis gráfico")
 
-# ── GRAFICO 1: Serie temporal ──────────────────────────────────────────
-st.subheader("Grafico 1 — Evolucion mensual de cantidades vendidas")
+# ── GRÁFICO 1: Serie temporal ──────────────────────────────────────────
+st.subheader("Gráfico 1 — Evolución mensual de cantidades vendidas")
 
 serie = (
     df_v.groupby(["AÑO_MES", "OCTOGONO"])["CANTIDAD"]
@@ -304,15 +304,15 @@ serie = (
 )
 serie.index = serie.index.to_timestamp()
 
-fig1, ax1 = plt.subplots(figsize=(12, 4))
+fig1, ax1 = plt.subplots(figsize=(10.8, 3.6))
 ax1.plot(serie.index, serie["CON_OCTOGONO"] / 1e6,
-         color=GREEN, lw=2, label="CON octogono (copos, bolitas, anillos...)")
+         color=GREEN, lw=2, label="CON octógono (copos, bolitas, anillos...)")
 ax1.plot(serie.index, serie["SIN_OCTOGONO"] / 1e6,
-         color=CYAN, lw=2, label="SIN octogono (avena, granola, bran...)")
+         color=CYAN, lw=2, label="SIN octógono (avena, granola, bran...)")
 ax1.axvline(pd.Timestamp("2022-07-01"), color=AMBER,
             lw=2, ls="--", label="Ley 27.642 (jul-2022)")
-ax1.set_title("Evolucion mensual de cantidades vendidas\n"
-              "Productos CON vs SIN octogono — General Cereals 2022-2024",
+ax1.set_title("Evolución mensual de cantidades vendidas\n"
+              "Productos CON vs SIN octógono — General Cereals 2022-2024",
               fontsize=13)
 ax1.set_xlabel("Mes")
 ax1.set_ylabel("Millones de unidades vendidas")
@@ -322,21 +322,21 @@ plt.tight_layout()
 st.pyplot(fig1)
 plt.close(fig1)
 
-with st.expander("Interpretacion del Grafico 1", expanded=True):
+with st.expander("Interpretación del Gráfico 1", expanded=True):
     st.markdown("""
-    Las dos lineas cuentan historias distintas.
-    Los productos CON octogono vienen de un volumen mucho mas alto en 2022,
+    Las dos líneas cuentan historias distintas.
+    Los productos CON octógono vienen de un volumen mucho más alto en 2022,
     pero muestran una tendencia clara hacia abajo que se sostiene en el tiempo.
-    Los productos SIN octogono arrancan mas bajos, crecen durante 2023 y
+    Los productos SIN octógono arrancan más bajos, crecen durante 2023 y
     caen junto con el consumo general en 2024.
-    Ambos grupos vivieron la misma inflacion, pero reaccionaron de forma opuesta
-    en 2023 — cuando la brecha es mas clara.
+    Ambos grupos vivieron la misma inflación, pero reaccionaron de forma opuesta
+    en 2023 — cuando la brecha es más clara.
     """)
 
 st.markdown("---")
 
-# ── GRAFICO 2: Barras comparativas ─────────────────────────────────────
-st.subheader("Grafico 2 — Promedio mensual pre/post ley")
+# ── GRÁFICO 2: Barras comparativas ─────────────────────────────────────
+st.subheader("Gráfico 2 — Promedio mensual pre/post ley")
 
 total_periodo = (
     df_v.groupby(["PERIODO", "OCTOGONO"])["CANTIDAD"]
@@ -349,16 +349,16 @@ prom_mensual.loc["POST_LEY"] /= MESES_POST
 x = np.arange(2)
 w = 0.35
 
-fig2, ax2 = plt.subplots(figsize=(8, 4))
+fig2, ax2 = plt.subplots(figsize=(7.2, 3.6))
 ax2.bar(x, prom_mensual["CON_OCTOGONO"] / 1e6, w,
-        label="CON octogono", color=GREEN, alpha=0.85)
+        label="CON octógono", color=GREEN, alpha=0.85)
 ax2.bar(x + w, prom_mensual["SIN_OCTOGONO"] / 1e6, w,
-        label="SIN octogono", color=CYAN, alpha=0.85)
+        label="SIN octógono", color=CYAN, alpha=0.85)
 
 ax2.set_xticks(x + w / 2)
 ax2.set_xticklabels(["Pre Ley\n(ene-jun 2022)", "Post Ley\n(jul 2022 - dic 2024)"])
 ax2.set_ylabel("Promedio mensual (millones de unidades)")
-ax2.set_title("Promedio mensual de ventas antes y despues de la Ley 27.642\n"
+ax2.set_title("Promedio mensual de ventas antes y después de la Ley 27.642\n"
               "Normalizado por cantidad de meses — General Cereals",
               fontsize=12)
 ax2.legend()
@@ -377,20 +377,20 @@ plt.tight_layout()
 st.pyplot(fig2)
 plt.close(fig2)
 
-with st.expander("Interpretacion del Grafico 2", expanded=True):
+with st.expander("Interpretación del Gráfico 2", expanded=True):
     st.markdown("""
-    Con el mismo punto de partida aproximado y el mismo contexto economico,
-    un grupo cayo 18,3% y el otro subio 16,6%.
+    Con el mismo punto de partida aproximado y el mismo contexto económico,
+    un grupo cayó 18,3% y el otro subió 16,6%.
     Una brecha de casi 35 puntos porcentuales entre dos grupos dentro de la misma empresa,
-    bajo la misma inflacion y distribuidos por los mismos canales.
+    bajo la misma inflación y distribuidos por los mismos canales.
     Esa magnitud es consistente con un efecto del etiquetado sobre la demanda,
-    aunque no prueba causalidad por si sola.
+    aunque no prueba causalidad por sí sola.
     """)
 
 st.markdown("---")
 
-# ── GRAFICO 3: Precio real y cantidad ──────────────────────────────────
-st.subheader("Grafico 3 — Precio real y cantidad vendida (paneles)")
+# ── GRÁFICO 3: Precio real y cantidad ──────────────────────────────────
+st.subheader("Gráfico 3 — Precio real y cantidad vendida (paneles)")
 
 precio_mes = (
     df_v.groupby(["AÑO_MES", "OCTOGONO"])["PRECIO_REAL"]
@@ -404,7 +404,7 @@ cant_mes = (
 )
 cant_mes.index = cant_mes.index.to_timestamp()
 
-fig3, axes = plt.subplots(1, 2, figsize=(12, 4))
+fig3, axes = plt.subplots(1, 2, figsize=(10.8, 3.6))
 fig3.suptitle(
     "Evolucion mensual del precio real y la cantidad vendida\n"
     "General Cereals 2022-2024 — por grupo de etiquetado",
@@ -444,18 +444,18 @@ plt.tight_layout()
 st.pyplot(fig3)
 plt.close(fig3)
 
-with st.expander("Interpretacion del Grafico 3", expanded=True):
+with st.expander("Interpretación del Gráfico 3", expanded=True):
     st.markdown("""
-    En ambos paneles el precio real sube de manera muy similar: +9,1% para los CON octogono
-    y +20,3% para los SIN octogono en terminos reales a lo largo de todo el periodo.
+    En ambos paneles el precio real sube de manera muy similar: +9,1% para los CON octógono
+    y +20,3% para los SIN octógono en términos reales a lo largo de todo el período.
 
     Sin embargo, la cantidad cuenta historias completamente distintas en cada panel.
-    En el panel CON octogono, la cantidad cae de manera sostenida desde julio 2022.
-    En el panel SIN octogono, la cantidad sube durante 2023 y solo cae en 2024.
+    En el panel CON octógono, la cantidad cae de manera sostenida desde julio 2022.
+    En el panel SIN octógono, la cantidad sube durante 2023 y solo cae en 2024.
 
-    El patron clave: en CON, el precio real sube mientras la cantidad baja.
+    El patrón clave: en CON, el precio real sube mientras la cantidad baja.
     En SIN, precio y cantidad suben juntos en 2023.
-    Esa diferencia de comportamiento, bajo precios reales casi identicos,
+    Esa diferencia de comportamiento, bajo precios reales casi idénticos,
     es consistente con un efecto del etiquetado.
     """)
 
@@ -484,7 +484,7 @@ if año_sel:
 st.markdown("**Tabla de ventas anuales:**")
 st.dataframe(resumen_anual.style.format("{:,.0f}"), use_container_width=True)
 
-st.markdown("**Variacion interanual:**")
+st.markdown("**Variación interanual:**")
 var_anual = resumen_anual.pct_change().mul(100).round(1)
 st.dataframe(var_anual.style.format("{:+.1f}%"), use_container_width=True)
 
@@ -495,7 +495,7 @@ st.dataframe(var_anual.style.format("{:+.1f}%"), use_container_width=True)
 st.header("9. Elasticidad-arco precio/cantidad")
 
 st.markdown("""
-La **elasticidad precio de la demanda** usa la formula del punto medio (arco):
+La **elasticidad precio de la demanda** usa la fórmula del punto medio (arco):
 
 $$E = \\frac{(Q_1 - Q_0) / ((Q_0 + Q_1)/2)}{(P_1 - P_0) / ((P_0 + P_1)/2)}$$
 """)
@@ -544,38 +544,38 @@ st.dataframe(
 e_con = df_elast[df_elast["grupo"] == "CON_OCTOGONO"]["e"].values[0]
 e_sin = df_elast[df_elast["grupo"] == "SIN_OCTOGONO"]["e"].values[0]
 
-st.subheader("Interpretacion interactiva")
+st.subheader("Interpretación interactiva")
 
 grupo_elast = st.radio(
-    "Elegir grupo para ver interpretacion de la elasticidad:",
+    "Elegir grupo para ver interpretación de la elasticidad:",
     ["CON octogono", "SIN octogono"],
     horizontal=True,
 )
 
 if grupo_elast == "CON octogono":
     st.markdown(f"""
-    **CON octogono: E = {e_con:.4f}** → demanda **INELASTICA** con caida de volumen
+    **CON octógono: E = {e_con:.4f}** → demanda **INELÁSTICA** con caída de volumen
 
     - Precio nominal: ${resultados_e[0]["p0"]:,.0f} → ${resultados_e[0]["p1"]:,.0f} ({resultados_e[0]["vp"]:+.1f}%)
     - Precio real: $21,554 → $23,512 (+9.1%)
     - Cantidad: {resultados_e[0]["vq"]:+.1f}%
-    - Por cada 1% de aumento de precio nominal, la cantidad cayo un {abs(e_con):.2f}%.
-    - La demanda es inelastica: la caida de cantidad fue menor que el aumento de precio.
+    - Por cada 1% de aumento de precio nominal, la cantidad cayó un {abs(e_con):.2f}%.
+    - La demanda es inelástica: la caída de cantidad fue menor que el aumento de precio.
     """)
 else:
     st.markdown(f"""
-    **SIN octogono: E = +{e_sin:.4f}** → elasticidad **POSITIVA** (inusual)
+    **SIN octógono: E = +{e_sin:.4f}** → elasticidad **POSITIVA** (inusual)
 
     - Precio nominal: ${resultados_e[1]["p0"]:,.0f} → ${resultados_e[1]["p1"]:,.0f} ({resultados_e[1]["vp"]:+.1f}%)
     - Precio real: $24,640 → $29,632 (+20.3%)
     - Cantidad: {resultados_e[1]["vq"]:+.1f}%
-    - El precio real de SIN subio mas que el de CON, pero la cantidad igualmente crecio.
+    - El precio real de SIN subió más que el de CON, pero la cantidad igualmente creció.
     - Esto confirma que la diferencia no es de precio: es de preferencia.
     """)
 
 st.info("""
-**Nota metodologica:** La elasticidad-arco usa precios NOMINALES (formula del punto medio,
-vista en clase). El analisis de precio real (T3) es complementario y sirve para verificar
+**Nota metodológica:** La elasticidad-arco usa precios NOMINALES (fórmula del punto medio,
+vista en clase). El análisis de precio real (T3) es complementario y sirve para verificar
 que la divergencia de cantidades no se explica por precio.
 """)
 
@@ -588,29 +588,29 @@ st.header("10. Conclusiones")
 st.markdown("""
 ### Hallazgo principal
 
-Los datos muestran una **divergencia clara y sostenida** entre productos CON y SIN octogono.
+Los datos muestran una **divergencia clara y sostenida** entre productos CON y SIN octógono.
 No es un efecto marginal ni puntual: se mantiene en el tiempo y aparece desde distintos
-angulos del analisis.
+ángulos del análisis.
 """)
 
 col1, col2 = st.columns(2)
 
 with col1:
     st.error("""
-### ¿Que descartamos?
+### ¿Qué descartamos?
 
-La explicacion por **precio queda descartada** como factor determinante de la divergencia:
-el grupo SIN octogono se encarecio **mas** en terminos reales (+20.3% vs +9.1%)
-y sin embargo vendio mas. Si el precio hubiera sido el factor determinante, el resultado
-deberia ser el contrario.
+La explicación por **precio queda descartada** como factor determinante de la divergencia:
+el grupo SIN octógono se encareció **más** en términos reales (+20.3% vs +9.1%)
+y sin embargo vendió más. Si el precio hubiera sido el factor determinante, el resultado
+debería ser el contrario.
     """)
 
 with col2:
     st.success("""
-### ¿Que queda como factor mas plausible?
+### ¿Qué queda como factor más plausible?
 
 El **etiquetado frontal** como variable diferenciadora. Los consumidores respondieron
-al octogono como senyal de alerta, reduciendo la compra de productos CON octogono
+al octógono como señal de alerta, reduciendo la compra de productos CON octógono
 independientemente del precio.
     """)
 
@@ -618,11 +618,11 @@ st.markdown("---")
 
 with st.expander("Limitaciones del estudio", expanded=False):
     st.markdown("""
-    - Datos de **una sola empresa** (General Cereals) y un solo canal de distribucion
-    - No sabemos si el comportamiento refleja lo que paso en el mercado argentino en general
-    - No podemos descartar del todo otros factores internos de la empresa (cambios en portfolio,
-      politica de precios, distribucion)
+    - Datos de **una sola empresa** (General Cereals) y un solo canal de distribución
+    - No sabemos si el comportamiento refleja lo que pasó en el mercado argentino en general
+    - No podemos descartar del todo otros factores internos de la empresa (cambios en portafolio,
+      política de precios, distribución)
     """)
 
 st.markdown("---")
-st.caption("Trabajo Practico Grupal — Laboratorio de Metodos Cuantitativos — FCE UBA — 1C 2026")
+st.caption("Trabajo Práctico Grupal — Laboratorio de Métodos Cuantitativos — FCE UBA — 1C 2026")
