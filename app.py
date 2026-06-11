@@ -13,42 +13,62 @@ st.set_page_config(
 
 BASE = Path(__file__).parent
 
-# ── CSS verde y negro ──────────────────────────────────────────────────
-st.markdown("""
+# ── CSS verde oscuro, blanco ────────────────────────────────────────────
+BG = "#0d2818"
+BG_CARD = "#1a4d2e"
+BG_CARD_WARN = "#4d2b1a"
+BG_CARD_ERR = "#4d1a1a"
+BG_CARD_OK = "#1a4d2e"
+BG_EXPANDER = "#153d24"
+GREEN = "#00e676"
+CYAN = "#00bcd4"
+AMBER = "#ff9800"
+RED = "#f44336"
+
+st.markdown(f"""
 <style>
-    .block-container { padding-top: 1.5rem; background-color: #0a0a0a; }
-    .stApp { background-color: #0a0a0a; }
-    h1, h2, h3, h4, h5 { color: #00e676 !important; }
-    h2 { border-bottom: 2px solid #00e676; padding-bottom: 0.3rem; }
-    .stMetric { background: #1a1a2e; border-radius: 8px; padding: 12px; border-left: 4px solid #00e676; }
-    .stMetric label { color: #b0bec5 !important; }
-    .stMetric [data-testid="stMetricValue"] { color: #00e676 !important; }
-    .stTabs [data-baseweb="tab"] { color: #b0bec5; }
-    .stTabs [aria-selected="true"] { color: #00e676 !important; border-bottom-color: #00e676 !important; }
-    .stDataFrame { background-color: #1a1a2e; }
-    div[data-testid="stVerticalBlock"] > div { color: #e0e0e0; }
-    .stAlert { background-color: #1a1a2e; }
-    .stInfo { background-color: #1a1a2e; border-left-color: #00e676; }
-    .stWarning { background-color: #1a1a2e; border-left-color: #ff9800; }
-    .stSuccess { background-color: #1a1a2e; border-left-color: #00e676; }
-    .stError { background-color: #1a1a2e; border-left-color: #f44336; }
-    div[data-testid="stExpander"] { background-color: #111122; border: 1px solid #00e676; }
+    .block-container {{ padding-top: 1.5rem; background-color: {BG}; }}
+    .stApp {{ background-color: {BG}; }}
+    h1, h2, h3, h4, h5 {{ color: #ffffff !important; }}
+    h2 {{ border-bottom: 2px solid {GREEN}; padding-bottom: 0.3rem; }}
+    p, li, span, label, div[data-testid="stMarkdownContainer"] {{ color: #e0e0e0 !important; }}
+    .stMetric {{ background: {BG_CARD}; border-radius: 8px; padding: 12px; border-left: 4px solid {GREEN}; }}
+    .stMetric label {{ color: #b0bec5 !important; }}
+    .stMetric [data-testid="stMetricValue"] {{ color: #ffffff !important; }}
+    .stMetric [data-testid="stMetricDelta"] {{ color: {GREEN} !important; }}
+    .stTabs [data-baseweb="tab"] {{ color: #b0bec5; }}
+    .stTabs [aria-selected="true"] {{ color: {GREEN} !important; border-bottom-color: {GREEN} !important; }}
+    .stDataFrame {{ background-color: {BG_CARD}; }}
+    div[data-testid="stVerticalBlock"] > div {{ color: #e0e0e0; }}
+    .stAlert {{ background-color: {BG_CARD}; color: #ffffff; }}
+    .stInfo {{ background-color: {BG_CARD}; border-left-color: {CYAN}; }}
+    .stWarning {{ background-color: {BG_CARD_WARN}; border-left-color: {AMBER}; }}
+    .stSuccess {{ background-color: {BG_CARD_OK}; border-left-color: {GREEN}; }}
+    .stError {{ background-color: {BG_CARD_ERR}; border-left-color: {RED}; }}
+    div[data-testid="stExpander"] {{ background-color: {BG_EXPANDER}; border: 1px solid {GREEN}; }}
+    div[data-testid="stExpander"] summary {{ color: #ffffff !important; }}
+    div[data-testid="stRadio"] label {{ color: #e0e0e0 !important; }}
+    div[data-testid="stSelectbox"] label {{ color: #e0e0e0 !important; }}
+    div[data-testid="stCheckbox"] label {{ color: #e0e0e0 !important; }}
+    .stSelectbox div[data-baseweb="input"] {{ background-color: {BG_CARD}; color: #ffffff; }}
+    .stMultiSelect div[data-baseweb="input"] {{ background-color: {BG_CARD}; color: #ffffff; }}
+    code {{ background-color: {BG_CARD}; color: {GREEN}; }}
 </style>
 """, unsafe_allow_html=True)
 
 plt.rcParams.update({
-    "figure.facecolor": "#0a0a0a",
-    "axes.facecolor": "#1a1a2e",
-    "axes.edgecolor": "#444",
-    "axes.labelcolor": "#e0e0e0",
+    "figure.facecolor": BG,
+    "axes.facecolor": BG_CARD,
+    "axes.edgecolor": "#2e7d4f",
+    "axes.labelcolor": "#ffffff",
     "xtick.color": "#b0bec5",
     "ytick.color": "#b0bec5",
-    "text.color": "#e0e0e0",
-    "grid.color": "#333",
+    "text.color": "#ffffff",
+    "grid.color": "#2e7d4f",
     "grid.alpha": 0.4,
-    "legend.facecolor": "#1a1a2e",
-    "legend.edgecolor": "#444",
-    "legend.labelcolor": "#e0e0e0",
+    "legend.facecolor": BG_CARD,
+    "legend.edgecolor": "#2e7d4f",
+    "legend.labelcolor": "#ffffff",
 })
 
 
@@ -284,12 +304,12 @@ serie = (
 )
 serie.index = serie.index.to_timestamp()
 
-fig1, ax1 = plt.subplots(figsize=(14, 5))
+fig1, ax1 = plt.subplots(figsize=(12, 4))
 ax1.plot(serie.index, serie["CON_OCTOGONO"] / 1e6,
-         color="#00e676", lw=2, label="CON octogono (copos, bolitas, anillos...)")
+         color=GREEN, lw=2, label="CON octogono (copos, bolitas, anillos...)")
 ax1.plot(serie.index, serie["SIN_OCTOGONO"] / 1e6,
-         color="#00bcd4", lw=2, label="SIN octogono (avena, granola, bran...)")
-ax1.axvline(pd.Timestamp("2022-07-01"), color="#ff9800",
+         color=CYAN, lw=2, label="SIN octogono (avena, granola, bran...)")
+ax1.axvline(pd.Timestamp("2022-07-01"), color=AMBER,
             lw=2, ls="--", label="Ley 27.642 (jul-2022)")
 ax1.set_title("Evolucion mensual de cantidades vendidas\n"
               "Productos CON vs SIN octogono — General Cereals 2022-2024",
@@ -329,11 +349,11 @@ prom_mensual.loc["POST_LEY"] /= MESES_POST
 x = np.arange(2)
 w = 0.35
 
-fig2, ax2 = plt.subplots(figsize=(9, 5))
+fig2, ax2 = plt.subplots(figsize=(8, 4))
 ax2.bar(x, prom_mensual["CON_OCTOGONO"] / 1e6, w,
-        label="CON octogono", color="#00e676", alpha=0.85)
+        label="CON octogono", color=GREEN, alpha=0.85)
 ax2.bar(x + w, prom_mensual["SIN_OCTOGONO"] / 1e6, w,
-        label="SIN octogono", color="#00bcd4", alpha=0.85)
+        label="SIN octogono", color=CYAN, alpha=0.85)
 
 ax2.set_xticks(x + w / 2)
 ax2.set_xticklabels(["Pre Ley\n(ene-jun 2022)", "Post Ley\n(jul 2022 - dic 2024)"])
@@ -344,7 +364,7 @@ ax2.set_title("Promedio mensual de ventas antes y despues de la Ley 27.642\n"
 ax2.legend()
 ax2.grid(True, axis="y", linestyle="--", alpha=0.4)
 
-for i, col, color in [(0, "CON_OCTOGONO", "#00e676"), (1, "SIN_OCTOGONO", "#00bcd4")]:
+for i, col, color in [(0, "CON_OCTOGONO", GREEN), (1, "SIN_OCTOGONO", CYAN)]:
     v_pre = prom_mensual.loc["PRE_LEY", col]
     v_post = prom_mensual.loc["POST_LEY", col]
     var = (v_post - v_pre) / v_pre * 100
@@ -384,7 +404,7 @@ cant_mes = (
 )
 cant_mes.index = cant_mes.index.to_timestamp()
 
-fig3, axes = plt.subplots(1, 2, figsize=(14, 5))
+fig3, axes = plt.subplots(1, 2, figsize=(12, 4))
 fig3.suptitle(
     "Evolucion mensual del precio real y la cantidad vendida\n"
     "General Cereals 2022-2024 — por grupo de etiquetado",
@@ -392,8 +412,8 @@ fig3.suptitle(
 )
 
 grupos = [
-    ("CON_OCTOGONO", "CON octogono", "#00e676", axes[0]),
-    ("SIN_OCTOGONO", "SIN octogono", "#00bcd4", axes[1]),
+    ("CON_OCTOGONO", "CON octogono", GREEN, axes[0]),
+    ("SIN_OCTOGONO", "SIN octogono", CYAN, axes[1]),
 ]
 
 for col, label, color, ax in grupos:
@@ -408,7 +428,7 @@ for col, label, color, ax in grupos:
              label="Cantidad vendida (millones, eje der.)")
     ax2.set_ylabel("Cantidad total vendida por mes\n(millones de unidades)", fontsize=9)
 
-    ax.axvline(pd.Timestamp("2022-07-01"), color="#ff9800",
+    ax.axvline(pd.Timestamp("2022-07-01"), color=AMBER,
                lw=2, ls="--", label="Ley 27.642 (jul-2022)")
 
     ax.set_title(f"Productos {label}", fontsize=11, fontweight="bold")
