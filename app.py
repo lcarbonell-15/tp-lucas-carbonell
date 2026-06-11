@@ -480,31 +480,75 @@ with col_b:
     pese a un aumento de precios aun mayor.
     </div>""", unsafe_allow_html=True)
 
-st.markdown("**Grafico 3 — Variacion interanual: ¿efecto puntual o sostenido?**")
+st.markdown("**Grafico 3 — Diagrama de dispersion: volumen CON vs SIN octogono (mensual)**")
 
-var_anual = df_graf.groupby(['AÑO','OCTOGONO'])['CANTIDAD'].sum().unstack()
-var_pct = var_anual.pct_change() * 100
+# Una fila por mes con ambos grupos como columnas
+pivot_q = (
+    agg
+    .pivot_table(index=['AÑO_MES', 'PERIODO'], columns='OCTOGONO', values='Q_miles', aggfunc='sum')
+    .reset_index()
+)
+pivot_q.columns.name = None
 
-fig3, ax3 = plt.subplots(figsize=(8, 4.5))
+pre3  = pivot_q[pivot_q['PERIODO'] == 'PRE_LEY']
+post3 = pivot_q[pivot_q['PERIODO'] == 'POST_LEY']
+
+fig3, ax3 = plt.subplots(figsize=(9, 5.5))
 fig3.patch.set_facecolor('#0D0D0D')
 ax3.set_facecolor('#0D0D0D')
-ax3.plot(var_pct.index, var_pct['CON_OCTOGONO'], marker='o', color=LIGHT_GREEN, lw=2.5, ms=10, label='CON octogono')
-ax3.plot(var_pct.index, var_pct['SIN_OCTOGONO'], marker='s', color=LIGHT_BLUE, lw=2.5, ms=10, label='SIN octogono')
-ax3.axhline(0, color='#555', ls=':', lw=1)
-ax3.set_ylabel('Variacion % vs anio anterior', fontsize=11, color='#AAA')
-ax3.set_xticks([2022, 2023, 2024])
-ax3.tick_params(colors='#AAA')
+
+ax3.scatter(pre3['SIN_OCTOGONO'],  pre3['CON_OCTOGONO'],
+            color=BLUE, s=100, alpha=0.95, zorder=4,
+            label=f'Pre Ley  ({len(pre3)} meses)', edgecolors='#41b6ef', linewidths=0.5)
+ax3.scatter(post3['SIN_OCTOGONO'], post3['CON_OCTOGONO'],
+            color=LIGHT_GREEN, s=70, alpha=0.75, marker='D', zorder=3,
+            label=f'Post Ley ({len(post3)} meses)')
+
+# Tendencias por periodo
+for subset, color, ls in [(pre3, BLUE, '-'), (post3, LIGHT_GREEN, '--')]:
+    if len(subset) >= 2:
+        x = subset['SIN_OCTOGONO'].dropna().values
+        y = subset['CON_OCTOGONO'].dropna().values
+        mask = np.isfinite(x) & np.isfinite(y)
+        if mask.sum() >= 2:
+            m, b, *_ = stats.linregress(x[mask], y[mask])
+            x_line = np.linspace(x[mask].min(), x[mask].max(), 100)
+            ax3.plot(x_line, m * x_line + b, color=color, lw=1.8, ls=ls, alpha=0.6)
+
+# Anotacion del patron
+ax3.annotate(
+    'PRE-LEY:\nambos grupos\nse mueven juntos',
+    xy=(pre3['SIN_OCTOGONO'].mean(), pre3['CON_OCTOGONO'].mean()),
+    xytext=(pre3['SIN_OCTOGONO'].mean() * 0.6, pre3['CON_OCTOGONO'].mean() * 1.05),
+    fontsize=9, color=LIGHT_BLUE,
+    arrowprops=dict(arrowstyle='->', color=LIGHT_BLUE, lw=1.2),
+    bbox=dict(boxstyle='round,pad=0.3', facecolor='#0D1920', edgecolor=BLUE, alpha=0.85)
+)
+ax3.annotate(
+    'POST-LEY:\nCON cae, SIN\nse mantiene o sube',
+    xy=(post3['SIN_OCTOGONO'].mean(), post3['CON_OCTOGONO'].mean()),
+    xytext=(post3['SIN_OCTOGONO'].mean() * 1.1, post3['CON_OCTOGONO'].mean() * 1.15),
+    fontsize=9, color=LIGHT_GREEN,
+    arrowprops=dict(arrowstyle='->', color=LIGHT_GREEN, lw=1.2),
+    bbox=dict(boxstyle='round,pad=0.3', facecolor='#141E14', edgecolor=GREEN, alpha=0.85)
+)
+
+ax3.set_xlabel('Volumen SIN octogono (miles de unidades/mes)', fontsize=11, color='#AAA')
+ax3.set_ylabel('Volumen CON octogono (miles de unidades/mes)', fontsize=11, color='#AAA')
 ax3.legend(fontsize=10, facecolor='#1A1A1A', edgecolor='#333', labelcolor='#CCC')
 ax3.grid(True, ls='--', alpha=0.15, color='#555')
+ax3.tick_params(colors='#AAA')
 for spine in ax3.spines.values(): spine.set_color('#2A2A2A')
 plt.tight_layout()
 st.pyplot(fig3)
 plt.close()
 
 st.markdown("""<div class="callout-light callout">
-Si el octogono generara un efecto puntual, la brecha deberia cerrarse en 2024.
-Pero no se cierra: el patron se mantiene. El cambio en las preferencias de los consumidores
-es <strong>estructural</strong>, no pasajero.
+Cada punto es un mes. En el eje X, el volumen de productos SIN octogono; en el eje Y, el de CON octogono.
+<strong>Patron clave:</strong> los puntos azules (pre-ley) se concentran arriba, con ambos grupos
+altos y correlacionados. Los rombos verdes (post-ley) caen en el eje Y
+mientras el X se sostiene o sube. La relacion entre las dos variables se invierte con la ley:
+lo que crecia junto ahora se mueve en sentidos opuestos.
 </div>""", unsafe_allow_html=True)
 
 st.markdown("**Grafico 4 — Desplazamiento de la curva de demanda (Shock externo)**")
