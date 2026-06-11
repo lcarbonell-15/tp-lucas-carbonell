@@ -13,62 +13,71 @@ st.set_page_config(
 
 BASE = Path(__file__).parent
 
-# ── CSS verde oscuro, blanco ────────────────────────────────────────────
-BG = "#0d2818"
-BG_CARD = "#1a4d2e"
-BG_CARD_WARN = "#4d2b1a"
-BG_CARD_ERR = "#4d1a1a"
-BG_CARD_OK = "#1a4d2e"
-BG_EXPANDER = "#153d24"
-GREEN = "#00e676"
-CYAN = "#00bcd4"
-AMBER = "#ff9800"
-RED = "#f44336"
+# ── CSS paleta presentación ────────────────────────────────────────────
+# Colores de la presentación: blanco, teal (#1a8a7d), coral (#e17055), gris oscuro (#2d3436)
+BG = "#ffffff"
+BG_CARD = "#f0f4f3"
+BG_CARD_WARN = "#fdf0e6"
+BG_CARD_ERR = "#fde8e8"
+BG_CARD_OK = "#e6f7f2"
+BG_EXPANDER = "#f7faf9"
+TEAL = "#1a8a7d"
+TEAL_DARK = "#136b62"
+CORAL = "#e17055"
+NAVY = "#2d3436"
+GRAY = "#636e72"
+LIGHT_GRAY = "#dfe6e9"
 
 st.markdown(f"""
 <style>
-    .block-container {{ padding-top: 1.5rem; background-color: {BG}; }}
+    .block-container {{ padding-top: 1.5rem; background-color: {BG}; max-width: 1100px; }}
     .stApp {{ background-color: {BG}; }}
-    h1, h2, h3, h4, h5 {{ color: #ffffff !important; }}
-    h2 {{ border-bottom: 2px solid {GREEN}; padding-bottom: 0.3rem; }}
-    p, li, span, label, div[data-testid="stMarkdownContainer"] {{ color: #e0e0e0 !important; }}
-    .stMetric {{ background: {BG_CARD}; border-radius: 8px; padding: 12px; border-left: 4px solid {GREEN}; }}
-    .stMetric label {{ color: #b0bec5 !important; }}
-    .stMetric [data-testid="stMetricValue"] {{ color: #ffffff !important; }}
-    .stMetric [data-testid="stMetricDelta"] {{ color: {GREEN} !important; }}
-    .stTabs [data-baseweb="tab"] {{ color: #b0bec5; }}
-    .stTabs [aria-selected="true"] {{ color: {GREEN} !important; border-bottom-color: {GREEN} !important; }}
-    .stDataFrame {{ background-color: {BG_CARD}; }}
-    div[data-testid="stVerticalBlock"] > div {{ color: #e0e0e0; }}
-    .stAlert {{ background-color: {BG_CARD}; color: #ffffff; }}
-    .stInfo {{ background-color: {BG_CARD}; border-left-color: {CYAN}; }}
-    .stWarning {{ background-color: {BG_CARD_WARN}; border-left-color: {AMBER}; }}
-    .stSuccess {{ background-color: {BG_CARD_OK}; border-left-color: {GREEN}; }}
-    .stError {{ background-color: {BG_CARD_ERR}; border-left-color: {RED}; }}
-    div[data-testid="stExpander"] {{ background-color: {BG_EXPANDER}; border: 1px solid {GREEN}; }}
-    div[data-testid="stExpander"] summary {{ color: #ffffff !important; }}
-    div[data-testid="stRadio"] label {{ color: #e0e0e0 !important; }}
-    div[data-testid="stSelectbox"] label {{ color: #e0e0e0 !important; }}
-    div[data-testid="stCheckbox"] label {{ color: #e0e0e0 !important; }}
-    .stSelectbox div[data-baseweb="input"] {{ background-color: {BG_CARD}; color: #ffffff; }}
-    .stMultiSelect div[data-baseweb="input"] {{ background-color: {BG_CARD}; color: #ffffff; }}
-    code {{ background-color: {BG_CARD}; color: {GREEN}; }}
+    h1 {{ color: {NAVY} !important; font-weight: 700; font-size: 1.8rem !important; }}
+    h2 {{ color: {NAVY} !important; font-weight: 600; border-bottom: 3px solid {TEAL}; padding-bottom: 0.4rem; font-size: 1.3rem !important; }}
+    h3 {{ color: {TEAL_DARK} !important; font-weight: 600; font-size: 1.1rem !important; }}
+    h4, h5 {{ color: {NAVY} !important; font-weight: 600; }}
+    p, li, span, label, div[data-testid="stMarkdownContainer"] {{ color: {NAVY} !important; line-height: 1.6; }}
+    .stMetric {{ background: {BG_CARD}; border-radius: 10px; padding: 16px; border: 1px solid {LIGHT_GRAY}; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }}
+    .stMetric label {{ color: {GRAY} !important; font-size: 0.85rem !important; }}
+    .stMetric [data-testid="stMetricValue"] {{ color: {TEAL} !important; font-weight: 700 !important; }}
+    .stMetric [data-testid="stMetricDelta"] {{ color: {TEAL_DARK} !important; }}
+    .stTabs [data-baseweb="tab"] {{ color: {GRAY}; font-weight: 500; }}
+    .stTabs [aria-selected="true"] {{ color: {TEAL} !important; border-bottom-color: {TEAL} !important; font-weight: 600; }}
+    .stDataFrame {{ background-color: {BG}; border-radius: 8px; }}
+    div[data-testid="stVerticalBlock"] > div {{ color: {NAVY}; }}
+    .stAlert {{ background-color: {BG_CARD}; color: {NAVY}; border-radius: 8px; border: 1px solid {LIGHT_GRAY}; }}
+    .stInfo {{ background-color: {BG_CARD}; border-left: 4px solid {TEAL}; }}
+    .stWarning {{ background-color: {BG_CARD_WARN}; border-left: 4px solid {CORAL}; }}
+    .stSuccess {{ background-color: {BG_CARD_OK}; border-left: 4px solid {TEAL}; }}
+    .stError {{ background-color: {BG_CARD_ERR}; border-left: 4px solid {CORAL}; }}
+    div[data-testid="stExpander"] {{ background-color: {BG_EXPANDER}; border: 1px solid {LIGHT_GRAY}; border-radius: 8px; }}
+    div[data-testid="stExpander"] summary {{ color: {NAVY} !important; font-weight: 500; }}
+    div[data-testid="stRadio"] label {{ color: {NAVY} !important; }}
+    div[data-testid="stSelectbox"] label {{ color: {NAVY} !important; }}
+    div[data-testid="stCheckbox"] label {{ color: {NAVY} !important; }}
+    .stSelectbox div[data-baseweb="input"] {{ background-color: {BG_CARD}; color: {NAVY}; }}
+    .stMultiSelect div[data-baseweb="input"] {{ background-color: {BG_CARD}; color: {NAVY}; }}
+    code {{ background-color: {BG_CARD}; color: {TEAL}; padding: 2px 6px; border-radius: 4px; }}
+    hr {{ border-color: {LIGHT_GRAY}; }}
+    .stCaption {{ color: {GRAY} !important; }}
 </style>
 """, unsafe_allow_html=True)
 
 plt.rcParams.update({
     "figure.facecolor": BG,
     "axes.facecolor": BG_CARD,
-    "axes.edgecolor": "#2e7d4f",
-    "axes.labelcolor": "#ffffff",
-    "xtick.color": "#b0bec5",
-    "ytick.color": "#b0bec5",
-    "text.color": "#ffffff",
-    "grid.color": "#2e7d4f",
-    "grid.alpha": 0.4,
-    "legend.facecolor": BG_CARD,
-    "legend.edgecolor": "#2e7d4f",
-    "legend.labelcolor": "#ffffff",
+    "axes.edgecolor": LIGHT_GRAY,
+    "axes.labelcolor": NAVY,
+    "xtick.color": GRAY,
+    "ytick.color": GRAY,
+    "text.color": NAVY,
+    "grid.color": LIGHT_GRAY,
+    "grid.alpha": 0.7,
+    "legend.facecolor": BG,
+    "legend.edgecolor": LIGHT_GRAY,
+    "legend.labelcolor": NAVY,
+    "font.family": "sans-serif",
+    "font.size": 10,
 })
 
 
@@ -204,7 +213,7 @@ if st.checkbox("Mostrar tipos de transacción (FORMULARIO)"):
 
 if st.checkbox("Mostrar distribución por subrubro (SUBRUBRO_BI)"):
     subrubros = df["SUBRUBRO_BI"].value_counts()
-    st.bar_chart(subrubros, color="#00e676")
+    st.bar_chart(subrubros, color=TEAL)
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -306,10 +315,10 @@ serie.index = serie.index.to_timestamp()
 
 fig1, ax1 = plt.subplots(figsize=(10.8, 3.6))
 ax1.plot(serie.index, serie["CON_OCTOGONO"] / 1e6,
-         color=GREEN, lw=2, label="CON octógono (copos, bolitas, anillos...)")
+         color=CORAL, lw=2, label="CON octógono (copos, bolitas, anillos...)")
 ax1.plot(serie.index, serie["SIN_OCTOGONO"] / 1e6,
-         color=CYAN, lw=2, label="SIN octógono (avena, granola, bran...)")
-ax1.axvline(pd.Timestamp("2022-07-01"), color=AMBER,
+         color=TEAL, lw=2, label="SIN octógono (avena, granola, bran...)")
+ax1.axvline(pd.Timestamp("2022-07-01"), color=GRAY,
             lw=2, ls="--", label="Ley 27.642 (jul-2022)")
 ax1.set_title("Evolución mensual de cantidades vendidas\n"
               "Productos CON vs SIN octógono — General Cereals 2022-2024",
@@ -351,9 +360,9 @@ w = 0.35
 
 fig2, ax2 = plt.subplots(figsize=(7.2, 3.6))
 ax2.bar(x, prom_mensual["CON_OCTOGONO"] / 1e6, w,
-        label="CON octógono", color=GREEN, alpha=0.85)
+        label="CON octógono", color=CORAL, alpha=0.85)
 ax2.bar(x + w, prom_mensual["SIN_OCTOGONO"] / 1e6, w,
-        label="SIN octógono", color=CYAN, alpha=0.85)
+        label="SIN octógono", color=TEAL, alpha=0.85)
 
 ax2.set_xticks(x + w / 2)
 ax2.set_xticklabels(["Pre Ley\n(ene-jun 2022)", "Post Ley\n(jul 2022 - dic 2024)"])
@@ -364,7 +373,7 @@ ax2.set_title("Promedio mensual de ventas antes y después de la Ley 27.642\n"
 ax2.legend()
 ax2.grid(True, axis="y", linestyle="--", alpha=0.4)
 
-for i, col, color in [(0, "CON_OCTOGONO", GREEN), (1, "SIN_OCTOGONO", CYAN)]:
+for i, col, color in [(0, "CON_OCTOGONO", CORAL), (1, "SIN_OCTOGONO", TEAL)]:
     v_pre = prom_mensual.loc["PRE_LEY", col]
     v_post = prom_mensual.loc["POST_LEY", col]
     var = (v_post - v_pre) / v_pre * 100
@@ -412,8 +421,8 @@ fig3.suptitle(
 )
 
 grupos = [
-    ("CON_OCTOGONO", "CON octogono", GREEN, axes[0]),
-    ("SIN_OCTOGONO", "SIN octogono", CYAN, axes[1]),
+    ("CON_OCTOGONO", "CON octógono", CORAL, axes[0]),
+    ("SIN_OCTOGONO", "SIN octógono", TEAL, axes[1]),
 ]
 
 for col, label, color, ax in grupos:
@@ -428,7 +437,7 @@ for col, label, color, ax in grupos:
              label="Cantidad vendida (millones, eje der.)")
     ax2.set_ylabel("Cantidad total vendida por mes\n(millones de unidades)", fontsize=9)
 
-    ax.axvline(pd.Timestamp("2022-07-01"), color=AMBER,
+    ax.axvline(pd.Timestamp("2022-07-01"), color=GRAY,
                lw=2, ls="--", label="Ley 27.642 (jul-2022)")
 
     ax.set_title(f"Productos {label}", fontsize=11, fontweight="bold")
